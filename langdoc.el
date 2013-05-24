@@ -38,7 +38,7 @@
 ;;    Function name which return the help string.
 ;;    This function recieves the string to show help.
 ;;
-;; If you need a concrete example, see the definition of `bf-mode' in bf-mode.el.
+;; If you need a concrete example, see the definition of `bf-mode:doc-fun' in bf-mode.el.
 
 ;;; Code:
 

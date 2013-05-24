@@ -23,4 +23,4 @@ Here are the variables to be assigned.
    Function name which return the help string.
    This function recieves the string to show help.
 
-If you need a concrete example, see the definition of [bf-mode](https://github.com/tom-tan/langdoc/blob/master/bf-mode.el) in bf-mode.el.
+If you need a concrete example, see the definition of [bf-mode:doc-fun in bf-mode.el](https://github.com/tom-tan/langdoc/blob/master/bf-mode.el#L58).
