@@ -44,55 +44,54 @@
   '(("[^]><+.,[-]+" . font-lock-comment-face)
     ("\\]\\|\\["    . font-lock-keyword-face))
   '("\\.bf\\'")
-  '(define-bf-keymap bfdoc-fun)
+  '(define-bf-keymap bf-mode:doc-fun)
   "Major mode for brainfuck")
 
-(defvar bf-local-map nil "Keymap for bf-mode")
+(defvar bf-mode:local-map nil "Keymap for bf-mode")
 
 (defun define-bf-keymap ()
-  (setq brainfuck-local-map (make-keymap))
-  (define-key brainfuck-local-map
+  (setq bf-mode:local-map (make-keymap))
+  (define-key bf-mode:local-map
       "\C-cf" #'langdoc:describe-symbol)
-  (use-local-map brainfuck-local-map))
+  (use-local-map bf-mode:local-map))
 
-(defun bfdoc-fun ()
+(defun bf-mode:doc-fun ()
   (make-local-variable 'eldoc-documentation-function)
   (setq eldoc-documentation-function
-        #'bf-minibuffer-help-string)
+        #'bf-mode:minibuffer-help-string)
   (custom-set-variables
-   '(langdoc:pointed-symbol-fn #'bf-sym-called-at-point)
+   '(langdoc:pointed-symbol-fn #'bf-mode:sym-called-at-point)
    '(langdoc:symbols '(">" "<" "+" "-" "." "," "[" "]"))
    '(langdoc:helpbuf "*Brainfuck Help*")
-   '(langdoc:make-document-fn #'bf-help-string)))
+   '(langdoc:make-document-fn #'bf-mode:help-string)))
 
-(defun bf-sym-called-at-point ()
+(defun bf-mode:sym-called-at-point ()
   (unless (eobp)
     (buffer-substring-no-properties (point) (1+ (point)))))
 
-(defun bf-minibuffer-help-string ()
+(defun bf-mode:minibuffer-help-string ()
   (interactive)
-  (let* ((sym (bf-sym-called-at-point))
-         (doc (when sym (bf-lookup-doc sym))))
-    (when doc (bf-summerize-doc sym doc))))
+  (let* ((sym (bf-mode:sym-called-at-point))
+         (doc (when sym (bf-mode:lookup-doc sym))))
+    (when doc (bf-mode:summerize-doc sym doc))))
 
-(defun bf-help-string (sym)
-  (let ((doc (bf-lookup-doc sym)))
+(defun bf-mode:help-string (sym)
+  (let ((doc (bf-mode:lookup-doc sym)))
     doc))
 
-(defun bf-lookup-doc (sym)
+(defun bf-mode:lookup-doc (sym)
+  "Returns document string for SYM."
   (cond
-    ((equal sym ">") "Increment the data pointer (to point to the next cell to the right).")
-    ((equal sym "<") "Decrement the data pointer (to point to the next cell to the left).")
-    ((equal sym "+") "Increment (increase by one) the byte at the data pointer.")
-    ((equal sym "-") "Decrement (decrease by one) the byte at the data pointer.")
-    ((equal sym ".") "Output the byte at the data pointer.")
-    ((equal sym ",") "Accept one byte of input, storing its value in the byte at the data pointer.")
-    ((equal sym "[") "If the byte at the data pointer is zero, then instead of moving the instruction pointer
-forward to the next command, jump it forward to the command after the matching ] command.")
-    ((equal sym "]") "If the byte at the data pointer is nonzero, then instead of moving the instruction pointer
-forward to the next command, jump it back to the command after the matching [ command.")))
+    ((equal sym ">") "Increment the pointer.")
+    ((equal sym "<") "Decrement the pointer.")
+    ((equal sym "+") "Increment the value indicated by the pointer.")
+    ((equal sym "-") "Decrement the value indicated by the pointer.")
+    ((equal sym ".") "Print the value indicated by the pointer.")
+    ((equal sym ",") "Read one byte from input and store it in the indicated value.")
+    ((equal sym "[") "Jump to the matching `]' if the indicated value is zero.")
+    ((equal sym "]") "Jump to the matching `[' if the indicated value is not zero.")))
 
-(defun bf-summerize-doc (sym doc)
+(defun bf-mode:summerize-doc (sym doc)
   (concat sym " : " (car (split-string doc "[\n\r]+"))))
 
 (provide 'bf-mode)
