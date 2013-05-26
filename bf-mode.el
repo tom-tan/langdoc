@@ -63,7 +63,12 @@
    '(langdoc:pointed-symbol-fn #'bf-mode:sym-called-at-point)
    '(langdoc:symbols '(">" "<" "+" "-" "." "," "[" "]"))
    '(langdoc:helpbuf "*Brainfuck Help*")
-   '(langdoc:make-document-fn #'bf-mode:help-string)))
+   '(langdoc:make-document-fn #'bf-mode:help-string)
+   '(langdoc:link-regexp "`\\([^']+\\)'")
+   '(langdoc:linked-prefix "`")
+   '(langdoc:linked-postfix "'")
+   '(langdoc:linked-str-fn #'identity)
+   '(langdoc:make-link-fn #'identity)))
 
 (defun bf-mode:sym-called-at-point ()
   (unless (eobp)

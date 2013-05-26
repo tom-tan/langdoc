@@ -56,10 +56,33 @@ the cursor.  This function recieves no arguments.")
   "Function name which return the help string.
 This function recieves the string to show help.")
 
+(defvar langdoc:link-regexp nil
+  "Regexp string to make links.")
+(defvar langdoc:linked-str-fn #'identity
+  "Function name which returns the string to be linked.
+This function recieves substrings matched by parenthesis
+in `langdoc:link-regexp'.")
+(defvar langdoc:make-link-fn #'identity
+  "Function name which returns .
+This function recieves substrings matched by parenthesis
+in `langdoc:link-regexp' and returns a string or a cons pair (SYM . FUN).
+SYM is the string to be linked and FUN is the function to jump to SYM help string.
+If it returns a string, `langdoc:describe-symbol' is used to jump to SYM.")
+(defvar langdoc:linked-prefix ""
+  "Prefix of the string returned from `langdoc:make-link-fn'.")
+(defvar langdoc:linked-postfix ""
+  "Postfix of the string returned from `langdoc:make-link-fn'.")
+
 (make-variable-buffer-local 'langdoc:pointed-symbol-fn)
 (make-variable-buffer-local 'langdoc:symbols)
 (make-variable-buffer-local 'langdoc:helpbuf)
 (make-variable-buffer-local 'langdoc:make-document-fn)
+
+(make-variable-buffer-local 'langdoc:link-regexp)
+(make-variable-buffer-local 'langdoc:link-str-fn)
+(make-variable-buffer-local 'langdoc:make-link-fn)
+(make-variable-buffer-local 'langdoc:linked-prefix)
+(make-variable-buffer-local 'langdoc:linked-postfix)
 
 (defun langdoc:describe-symbol (sym)
   "Display the full documentation of Sym (a string)."
@@ -79,31 +102,50 @@ This function recieves the string to show help.")
           (setq buffer-read-only nil)
           (let ((doc-str (funcall langdoc:make-document-fn sym)))
             (erase-buffer)
-            (insert doc-str))
+            (insert doc-str)
+            (when langdoc:link-regexp
+              (langdoc:make-links buf)))
           (goto-char (point-min))
           (set-buffer-modified-p nil)
           (setq buffer-read-only t)
           (view-mode t)
           (display-buffer buf)))))
 
-(defun langdoc:replace-to-link (beg end to &optional msg)
-  (make-text-button beg end
-                    'follow-link t
-                    'help-echo (concat "mouse-1, RET: "
-                                       (or msg "describe this symbol"))
-                    'action #'langdoc:goto-link
-                    'link to))
+(defun langdoc:call-fun (b)
+  (funcall (button-get b 'fun) (button-get b 'link)))
 
-(defun langdoc:insert-link (str to &optional msg)
+(defun langdoc:insert-link (str to fun)
   (insert-text-button str
                       'follow-link t
-                      'help-echo (concat "mouse-1, RET: "
-                                         (or msg "describe this symbol"))
-                      'action #'langdoc:goto-link
+                      'help-echo (concat "mouse-1, RET: describe this symbol")
+                      'fun fun
+                      'action #'langdoc:call-fun
                       'link to))
 
-(defun langdoc:goto-link (b)
-  (langdoc:describe-symbol (button-get b 'link)))
+(defun langdoc:make-links (buf)
+  (with-current-buffer buf
+    (goto-char (point-min))
+    (while (re-search-forward langdoc:link-regexp nil t)
+      (let ((beg (match-beginning 0))
+            (args (langdoc:matched-strings)))
+        (replace-match "" nil nil)
+        (goto-char beg)
+        (let ((str (apply langdoc:linked-str-fn args))
+              (link (apply langdoc:make-link-fn args)))
+          (insert langdoc:linked-prefix)
+          (langdoc:insert-link str
+                               (if (consp link) (car link) link)
+                               (if (consp link)
+                                   (cdr link) #'langdoc:describe-symbol))
+          (insert langdoc:linked-postfix))))))
+
+(defun langdoc:matched-strings ()
+  "Return a list of strings parenthesized expression in the last regexp search."
+  (let ((i 1) ret)
+    (while-let (str (match-string-no-properties i))
+               (incf i)
+               (add-to-list 'ret str t (lambda (a b) nil)))
+    ret))
 
 (provide 'langdoc)
 ;;; langdoc.el ends here
