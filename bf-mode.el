@@ -63,7 +63,7 @@
    '(langdoc:pointed-symbol-fn #'bf-mode:sym-called-at-point)
    '(langdoc:symbols '(">" "<" "+" "-" "." "," "[" "]"))
    '(langdoc:helpbuf "*Brainfuck Help*")
-   '(langdoc:make-document-fn #'bf-mode:help-string)
+   '(langdoc:make-document-fn #'bf-mode:lookup-doc)
    '(langdoc:link-regexp "`\\([^']+\\)'")
    '(langdoc:linked-prefix "`")
    '(langdoc:linked-postfix "'")
@@ -79,10 +79,6 @@
   (let* ((sym (bf-mode:sym-called-at-point))
          (doc (when sym (bf-mode:lookup-doc sym))))
     (when doc (bf-mode:summerize-doc sym doc))))
-
-(defun bf-mode:help-string (sym)
-  (let ((doc (bf-mode:lookup-doc sym)))
-    doc))
 
 (defun bf-mode:lookup-doc (sym)
   "Returns document string for SYM."
