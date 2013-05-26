@@ -38,6 +38,26 @@
 ;;    Function name which return the help string.
 ;;    This function recieves the string to show help.
 ;;
+;; Furthermore, here are the variables to make links in help buffers.
+;;
+;; * `langdoc:link-regexp'
+;;   Regexp string to make links.
+;;   If nil, langdoc does not make links in help buffers.
+;; * `langdoc:linked-str-fn'
+;;   Function name which returns the string to be linked.
+;;   This function recieves substrings matched by parenthesis
+;;   in `langdoc:link-regexp'.
+;; * `langdoc:make-link-fn'
+;;   Function name which returns the string and function symbol to make link.
+;;   This function recieves substrings matched by parenthesis
+;;   in `langdoc:link-regexp' and returns a string or a cons pair (SYM . FUN).
+;;   SYM is the string to be linked and FUN is the function to jump to SYM help string.
+;;   If it returns a string, `langdoc:describe-symbol' is used to jump to SYM.
+;; * `langdoc:linked-prefix'
+;;   Prefix of the string returned from `langdoc:linked-str-fn'.
+;; * `langdoc:linked-postfix'
+;;   Postfix of the string returned from `langdoc:linked-str-fn'.
+;;
 ;; If you need a concrete example, see the definition of `bf-mode:doc-fun' in bf-mode.el.
 
 ;;; Code:
@@ -57,21 +77,22 @@ the cursor.  This function recieves no arguments.")
 This function recieves the string to show help.")
 
 (defvar langdoc:link-regexp nil
-  "Regexp string to make links.")
+  "Regexp string to make links.
+If nil, langdoc does not make links in help buffers.")
 (defvar langdoc:linked-str-fn #'identity
   "Function name which returns the string to be linked.
 This function recieves substrings matched by parenthesis
 in `langdoc:link-regexp'.")
 (defvar langdoc:make-link-fn #'identity
-  "Function name which returns .
+  "Function name which returns the string and function symbol to make link.
 This function recieves substrings matched by parenthesis
 in `langdoc:link-regexp' and returns a string or a cons pair (SYM . FUN).
 SYM is the string to be linked and FUN is the function to jump to SYM help string.
 If it returns a string, `langdoc:describe-symbol' is used to jump to SYM.")
 (defvar langdoc:linked-prefix ""
-  "Prefix of the string returned from `langdoc:make-link-fn'.")
+  "Prefix of the string returned from `langdoc:linked-str-fn'.")
 (defvar langdoc:linked-postfix ""
-  "Postfix of the string returned from `langdoc:make-link-fn'.")
+  "Postfix of the string returned from `langdoc:linked-str-fn'.")
 
 (make-variable-buffer-local 'langdoc:pointed-symbol-fn)
 (make-variable-buffer-local 'langdoc:symbols)
