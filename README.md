@@ -45,6 +45,7 @@ Furthermore, here are the variables to make links in help buffers.
 
   Prefix of the string returned from langdoc:linked-str-fn.
 * langdoc:linked-postfix
+
   Postfix of the string returned from langdoc:linked-str-fn.
 
 If you need a concrete example, see the definition of [bf-mode:doc-fun in bf-mode.el](https://github.com/tom-tan/langdoc/blob/master/bf-mode.el#L58).
