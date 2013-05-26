@@ -163,10 +163,22 @@ If it returns a string, `langdoc:describe-symbol' is used to jump to SYM.")
 (defun langdoc:matched-strings ()
   "Return a list of strings parenthesized expression in the last regexp search."
   (let ((i 1) ret)
-    (while-let (str (match-string-no-properties i))
+    (langdoc:while-let (str (match-string-no-properties i))
                (incf i)
                (add-to-list 'ret str t (lambda (a b) nil)))
     ret))
+
+(defmacro langdoc:if-let (lst then &rest else)
+  (let ((value (car lst))
+                (cnd   (cadr lst)))
+    `(let ((,value ,cnd))
+       (if ,value
+           ,then
+           ,@else))))
+
+(defmacro langdoc:while-let (lst &rest body)
+  `(while (if-let ,lst
+                  (progn ,@body t))))
 
 (provide 'langdoc)
 ;;; langdoc.el ends here
