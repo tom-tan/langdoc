@@ -59,7 +59,7 @@
 ;;   If it returns a string, MODE-PREFIX:describe-symbol is used to jump to SYM.
 ;; * PREFIX-STR, SUFFIX-STR
 ;;   Prefix and suffix of the string returned from LINKED-STR-FN.
-;; 
+;;
 ;; If you need a concrete example, see the definition of `bf-mode:doc-fun' in bf-mode.el.
 
 ;;; Code:
@@ -81,7 +81,7 @@
 
 (defmacro langdoc:if-let (lst then &rest else)
   (let ((value (car lst))
-                (cnd   (cadr lst)))
+        (cnd   (cadr lst)))
     `(let ((,value ,cnd))
        (if ,value
            ,then
@@ -89,14 +89,14 @@
 
 (defmacro langdoc:while-let (lst &rest body)
   `(while (langdoc:if-let ,lst
-                  (progn ,@body t))))
+                          (progn ,@body t))))
 
 (defun langdoc:matched-strings ()
   "Return a list of strings parenthesized expression in the last regexp search."
   (let ((i 0) ret)
     (langdoc:while-let (str (match-string-no-properties i))
-               (cl-incf i)
-               (add-to-list 'ret str t (lambda (a b) nil)))
+                       (cl-incf i)
+                       (add-to-list 'ret str t (lambda (a b) nil)))
     ret))
 
 (defmacro langdoc:define-help-mode (mode-prefix description helpbuf-name
