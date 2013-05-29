@@ -1,4 +1,4 @@
-;;; langdoc.el --- Help to define eldoc functions for various languages
+;;; langdoc.el --- Help to define help document mode for various languages
 
 ;; Copyright (C) 2013  by Tomoya Tanjo
 
@@ -20,117 +20,52 @@
 
 ;;; Commentary:
 
-;; This library helps you to define eldoc functions for various languages.
-;; Here are the variables to be assigned.
+;; This library helps you to define help document mode for various languages.
+;; `langdoc:define-help-mode' makes a major mode for help document
+;; and a function to show a description of a symbol. It takes at least six
+;; arguments.
 ;;
-;; * `eldoc-documentation-function'
-;;    If non-nil, function to call to return doc string.
-;;    The function of no args should return a one-line string for displaying
-;;    doc about a function etc. (quoted from docstring of this variable)
-;; * `langdoc:pointed-symbol-fn'
-;;    Function name which returns the string pointed by
-;;    the cursor.  This function recieves no arguments.
-;; * `langdoc:symbols'
-;;    List of strings which is used to complete words.
-;; * `langdoc:helpbuf'
-;;    Buffer name to show the help string.
-;; * `langdoc:make-document-fn'
-;;    Function name which return the help string.
-;;    This function recieves the string to show help.
+;; First three arguments are to define the help document mode.
+;; * MODE-PREFIX
+;;   Symbol to make a help mode name and a function name.
+;;   `langdoc:define-help-mode' makes a major mode named MODE-PREFIX-mode
+;;   and a function named MODE-PREFIX:describe-symbol.
+;; * DESCRIPTION
+;;   Description for MODE-PREFIX-mode.
+;; * HELPBUF-NAME
+;;   Buffer name for MODE-PREFIX-mode
 ;;
-;; Furthermore, here are the variables to make links in help buffers.
+;; Next three arguments are to define MODE-PREFIX:describe-symbol.
+;; * POINTED-SYM-FN
+;;   Function name which returns the string pointed by
+;;   the cursor. This function takes no arguments.
+;; * SYMBOL
+;;   List of strings which is used to complete words.
+;; * MAKE-DOCUMENT-FN
+;;   Function name which takes the word as a string
+;;   and returns the help string.
 ;;
-;; * `langdoc:link-regexp'
+;; Rest of the arguments is to make links in help buffers.
+;; * LINK-REGEXP
 ;;   Regexp string to make links.
-;;   If nil, langdoc does not make links in help buffers.
-;; * `langdoc:linked-str-fn'
-;;   Function name which returns the string to be linked.
-;;   This function recieves substrings matched by parenthesis
-;;   in `langdoc:link-regexp'.
-;; * `langdoc:make-link-fn'
-;;   Function name which returns the string and function symbol to make link.
-;;   This function recieves substrings matched by parenthesis
-;;   in `langdoc:link-regexp' and returns a string or a cons pair (SYM . FUN).
-;;   SYM is the string to be linked and FUN is the function to jump to SYM help string.
-;;   If it returns a string, `langdoc:describe-symbol' is used to jump to SYM.
-;; * `langdoc:linked-prefix'
-;;   Prefix of the string returned from `langdoc:linked-str-fn'.
-;; * `langdoc:linked-postfix'
-;;   Postfix of the string returned from `langdoc:linked-str-fn'.
-;;
+;;   If nil, MODE-PREFIX:describe-symbol does not make any links in help buffers.
+;; * LINKED-STR-FN
+;;   Function name which takes substrings matched in LINK-REGEXP
+;;   and returns the string to be linked.
+;; * MAKE-LINK-FN
+;;   Function name which takes same arguments as LINKED-STR-FN
+;;   and returns a string or a cons pair (SYM . FUN).
+;;   SYM is a link to other document and FUN is the function to jump to the help buffer for SYM.
+;;   If it returns a string, MODE-PREFIX:describe-symbol is used to jump to SYM.
+;; * PREFIX-STR, SUFFIX-STR
+;;   Prefix and suffix of the string returned from LINKED-STR-FN.
+;; 
 ;; If you need a concrete example, see the definition of `bf-mode:doc-fun' in bf-mode.el.
 
 ;;; Code:
 
 (require 'button)
 (require 'view)
-
-(defvar langdoc:pointed-symbol-fn nil
-  "Function name which returns the string pointed by
-the cursor.  This function recieves no arguments.")
-(defvar langdoc:symbols nil
-  "List of strings which is used to complete words.")
-(defvar langdoc:helpbuf nil
-  "Buffer name to show the help string.")
-(defvar langdoc:make-document-fn nil
-  "Function name which return the help string.
-This function recieves the string to show help.")
-
-(defvar langdoc:link-regexp nil
-  "Regexp string to make links.
-If nil, langdoc does not make links in help buffers.")
-(defvar langdoc:linked-str-fn #'identity
-  "Function name which returns the string to be linked.
-This function recieves substrings matched by parenthesis
-in `langdoc:link-regexp'.")
-(defvar langdoc:make-link-fn #'identity
-  "Function name which returns the string and function symbol to make link.
-This function recieves substrings matched by parenthesis
-in `langdoc:link-regexp' and returns a string or a cons pair (SYM . FUN).
-SYM is the string to be linked and FUN is the function to jump to SYM help string.
-If it returns a string, `langdoc:describe-symbol' is used to jump to SYM.")
-(defvar langdoc:linked-prefix ""
-  "Prefix of the string returned from `langdoc:linked-str-fn'.")
-(defvar langdoc:linked-postfix ""
-  "Postfix of the string returned from `langdoc:linked-str-fn'.")
-
-(make-variable-buffer-local 'langdoc:pointed-symbol-fn)
-(make-variable-buffer-local 'langdoc:symbols)
-(make-variable-buffer-local 'langdoc:helpbuf)
-(make-variable-buffer-local 'langdoc:make-document-fn)
-
-(make-variable-buffer-local 'langdoc:link-regexp)
-(make-variable-buffer-local 'langdoc:link-str-fn)
-(make-variable-buffer-local 'langdoc:make-link-fn)
-(make-variable-buffer-local 'langdoc:linked-prefix)
-(make-variable-buffer-local 'langdoc:linked-postfix)
-
-(defun langdoc:describe-symbol (sym)
-  "Display the full documentation of Sym (a string)."
-  (interactive
-   (let* ((s (funcall langdoc:pointed-symbol-fn))
-          (enable-recursive-minibuffers t)
-          (val (completing-read
-                (if s
-                    (format "Describe symbol (default %s): " s)
-                    "Describe symbol: ")
-                langdoc:symbols 'stringp nil nil nil s)))
-     (list (if (equal val "") s val))))
-  (if (null sym)
-      (message "You didn't specify a symbol")
-      (let ((buf (get-buffer-create langdoc:helpbuf)))
-        (with-current-buffer buf
-          (setq buffer-read-only nil)
-          (let ((doc-str (funcall langdoc:make-document-fn sym)))
-            (erase-buffer)
-            (insert doc-str)
-            (when langdoc:link-regexp
-              (langdoc:make-links buf)))
-          (goto-char (point-min))
-          (set-buffer-modified-p nil)
-          (setq buffer-read-only t)
-          (view-mode t)
-          (display-buffer buf)))))
 
 (defun langdoc:call-fun (b)
   (funcall (button-get b 'fun) (button-get b 'link)))
@@ -143,31 +78,6 @@ If it returns a string, `langdoc:describe-symbol' is used to jump to SYM.")
                       'action #'langdoc:call-fun
                       'link to))
 
-(defun langdoc:make-links (buf)
-  (with-current-buffer buf
-    (goto-char (point-min))
-    (while (re-search-forward langdoc:link-regexp nil t)
-      (let ((beg (match-beginning 0))
-            (args (langdoc:matched-strings)))
-        (replace-match "" nil nil)
-        (goto-char beg)
-        (let ((str (apply langdoc:linked-str-fn args))
-              (link (apply langdoc:make-link-fn args)))
-          (insert langdoc:linked-prefix)
-          (langdoc:insert-link str
-                               (if (consp link) (car link) link)
-                               (if (consp link)
-                                   (cdr link) #'langdoc:describe-symbol))
-          (insert langdoc:linked-postfix))))))
-
-(defun langdoc:matched-strings ()
-  "Return a list of strings parenthesized expression in the last regexp search."
-  (let ((i 1) ret)
-    (langdoc:while-let (str (match-string-no-properties i))
-               (incf i)
-               (add-to-list 'ret str t (lambda (a b) nil)))
-    ret))
-
 (defmacro langdoc:if-let (lst then &rest else)
   (let ((value (car lst))
                 (cnd   (cadr lst)))
@@ -179,6 +89,97 @@ If it returns a string, `langdoc:describe-symbol' is used to jump to SYM.")
 (defmacro langdoc:while-let (lst &rest body)
   `(while (if-let ,lst
                   (progn ,@body t))))
+
+(defun langdoc:matched-strings ()
+  "Return a list of strings parenthesized expression in the last regexp search."
+  (let ((i 0) ret)
+    (langdoc:while-let (str (match-string-no-properties i))
+               (incf i)
+               (add-to-list 'ret str t (lambda (a b) nil)))
+    ret))
+
+(defmacro langdoc:define-help-mode (mode-prefix description helpbuf-name
+                                    pointed-sym-fn symbols make-document-fn
+                                    &optional link-regexp linked-str-fn
+                                      make-link-fn prefix-str suffix-str)
+  "Define help-mode and describe-symbol functions.
+It defines MODE-PREFIX-mode which is a major mode to show help strings, and
+defines MODE-PREFIX:describe-symbol to show help strings in MODE-PREFIX-mode.
+MODE-PREFIX:describe-symbol takes a string to show a full documentation in a help buffer.
+DESCRIPTION is a description of MODE-PREFIX-mode. HELPBUF-NAME is a buffer name
+for MODE-PREFIX-mode.
+
+POINTED-SYM-FN is a function which recieves no arguments and returns a string
+pointed by the cursor. MODE-PREFIX:describe-symbol uses POINTED-SYM-FN when
+it is interactively called. SYMBOLS is a list of strings to complete the
+argument of MODE-PREFIX:describe-symbol. MAKE-DOCUMENT-FN is a function
+which takes a string and returns the string which is a full document of the argument.
+
+LINK-REGEXP is a regexp to make links for MODE-PREFIX:describe-symbol.
+If NIL, MODE-PREFIX:describe-symbol does not make any links in help buffers.
+LINKED-STR-FN is a function which takes substrings matched in LINK-REGEXP
+and returns a string to be linked. MAKE-LINK-FN is a function which takes
+same arguments as LINKED-STR-FN and returns a string which is a link to
+other document. PREFIX-STR and SUFFIX-STR are the prefix and suffix of the
+return value of LINKED-STR-FN respectively.
+
+For instance, Let LINK-REGEXP be \"`\\\\(.+\\\\)'\", LINKED-STR-FN be
+(lambda (a b) (concat \"[\" b \"]\")), MAKE-LINK-FN be (lambda (a b) b),
+and PREFIX-STR and SUFFIX-STR  are \"`\" and \"'\" respectively.
+
+In this case, a string \"`linked-str'\" in help buffer becomes
+\"`[linked-str]'\" with a link to \"linked-str\"."
+
+  (let ((mode (intern (concat (symbol-name mode-prefix) "-mode")))
+        (setup (intern (concat (symbol-name mode-prefix) ":setup")))
+        (desc-fn (intern (concat (symbol-name mode-prefix) ":describe-symbol"))))
+    `(progn
+
+       (define-generic-mode ,mode
+         nil nil nil nil
+         '(,setup)
+         ,description)
+
+       ,(when link-regexp
+              `(defun ,setup ()
+                 (goto-char (point-min))
+                 (while (re-search-forward ,link-regexp nil t)
+                   (let ((beg (match-beginning 0))
+                         (args (langdoc:matched-strings)))
+                     (replace-match "" nil nil)
+                     (goto-char beg)
+                     (let ((str (apply ,linked-str-fn args))
+                           (link (apply ,make-link-fn args)))
+                       ,(when prefix-str `(insert ,prefix-str))
+                       (langdoc:insert-link str
+                                            (if (consp link) (car link) link)
+                                            (if (consp link)
+                                                (cdr link) (quote ,desc-fn)))
+                       (insert ,(or suffix-str ""))
+                       ,(when suffix-str `(insert ,suffix-str)))))))
+
+       (defun ,desc-fn (sym)
+         (interactive
+          (let* ((s (funcall ,pointed-sym-fn))
+                 (enable-recursive-minibuffers t)
+                 (val (completing-read
+                       (if s
+                           (format "Describe symbol (default %s): " s)
+                           "Describe symbol: ")
+                       ,symbols 'stringp nil nil nil s)))
+            (list (if (equal val "") s val))))
+         (if (null sym)
+             (message "You didn't specify a symbol")
+             (let ((buf (get-buffer-create ,helpbuf-name)))
+               (with-current-buffer buf
+                 (setq buffer-read-only nil)
+                 (let ((doc (funcall ,make-document-fn sym)))
+                   (erase-buffer)
+                   (insert doc)
+                   (,mode)
+                   (goto-char (point-min))
+                   (view-mode t)
+                   (display-buffer buf)))))))))
 
 (provide 'langdoc)
 ;;; langdoc.el ends here
