@@ -30,7 +30,7 @@
 ;;     (require 'bf-mode)
 ;; bf-mode highlights some keywords for usability.
 ;; By using M-x eldoc-mode, you can see the help string in minibuffer.
-;; Also, by using M-x langdoc:describe-symbol (or C-c f), you can see
+;; Also, by using M-x bf-help:describe-symbol (or C-c f), you can see
 ;; more documents for each command.
 
 ;;; Code:
