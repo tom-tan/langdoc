@@ -52,23 +52,22 @@
 (defun define-bf-keymap ()
   (setq bf-mode:local-map (make-keymap))
   (define-key bf-mode:local-map
-      "\C-cf" #'langdoc:describe-symbol)
+      "\C-cf" 'bf-help:describe-symbol)
   (use-local-map bf-mode:local-map))
+
+(langdoc:define-help-mode bf-help "Major mode for brainfuck help" "*Brainfuck Help*"
+                          'bf-mode:sym-called-at-point
+                          '(">" "<" "+" "-" "." "," "[" "]")
+                          'bf-mode:lookup-doc
+                          "`\\([^']+\\)'"
+                          (lambda (a b) b) (lambda (a b) b)
+                          "`" "'")
+
 
 (defun bf-mode:doc-fun ()
   (make-local-variable 'eldoc-documentation-function)
   (setq eldoc-documentation-function
-        #'bf-mode:minibuffer-help-string)
-  (custom-set-variables
-   '(langdoc:pointed-symbol-fn #'bf-mode:sym-called-at-point)
-   '(langdoc:symbols '(">" "<" "+" "-" "." "," "[" "]"))
-   '(langdoc:helpbuf "*Brainfuck Help*")
-   '(langdoc:make-document-fn #'bf-mode:lookup-doc)
-   '(langdoc:link-regexp "`\\([^']+\\)'")
-   '(langdoc:linked-prefix "`")
-   '(langdoc:linked-postfix "'")
-   '(langdoc:linked-str-fn #'identity)
-   '(langdoc:make-link-fn #'identity)))
+        'bf-mode:minibuffer-help-string))
 
 (defun bf-mode:sym-called-at-point ()
   (unless (eobp)

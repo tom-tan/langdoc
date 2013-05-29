@@ -66,6 +66,7 @@
 
 (require 'button)
 (require 'view)
+(require 'cl-lib)
 
 (defun langdoc:call-fun (b)
   (funcall (button-get b 'fun) (button-get b 'link)))
@@ -87,14 +88,14 @@
            ,@else))))
 
 (defmacro langdoc:while-let (lst &rest body)
-  `(while (if-let ,lst
+  `(while (langdoc:if-let ,lst
                   (progn ,@body t))))
 
 (defun langdoc:matched-strings ()
   "Return a list of strings parenthesized expression in the last regexp search."
   (let ((i 0) ret)
     (langdoc:while-let (str (match-string-no-properties i))
-               (incf i)
+               (cl-incf i)
                (add-to-list 'ret str t (lambda (a b) nil)))
     ret))
 
