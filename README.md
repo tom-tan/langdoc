@@ -1,51 +1,52 @@
 # langdoc.el
 
-This library helps you to define eldoc functions for various languages.
-Here are the variables to be assigned.
+This library helps you to define help document mode for various languages.
+`langdoc:define-help-mode' makes a major mode for help document
+and a function to show a description of a symbol. It takes at least six arguments.
 
-* eldoc-documentation-function
+First three arguments are to define the help document mode.
+* MODE-PREFIX
 
-   If non-nil, function to call to return doc string.
-   The function of no args should return a one-line string for displaying
-   doc about a function etc. (quoted from docstring of this variable)
-* langdoc:pointed-symbol-fn
+  Symbol to make a help mode name and a function name.
+  `langdoc:define-help-mode' makes a major mode named MODE-PREFIX-mode
+  and a function named MODE-PREFIX:describe-symbol.
+* DESCRIPTION
 
-   Function name which returns the string pointed by
-   the cursor.  This function recieves no arguments.
-* langdoc:symbols
+  Description for MODE-PREFIX-mode.
+* HELPBUF-NAME
 
-   List of strings which is used to complete words.
-* langdoc:helpbuf
+  Buffer name for MODE-PREFIX-mode
 
-   Buffer name to show the help string.
-* langdoc:make-document-fn
+Next three arguments are to define MODE-PREFIX:describe-symbol.
+* POINTED-SYM-FN
 
-   Function name which return the help string.
-   This function recieves the string to show help.
+  Function name which returns the string pointed by
+  the cursor. This function takes no arguments.
+* SYMBOL
 
-Furthermore, here are the variables to make links in help buffers.
+  List of strings which is used to complete words.
+* MAKE-DOCUMENT-FN
 
-* langdoc:link-regexp
+  Function name which takes the word as a string
+  and returns the help string.
+
+Rest of the arguments is to make links in help buffers.
+* LINK-REGEXP
 
   Regexp string to make links.
-  If nil, langdoc does not make links in help buffers.
-* langdoc:linked-str-fn
+  If nil, MODE-PREFIX:describe-symbol does not make any links in help buffers.
+* LINKED-STR-FN
 
-  Function name which returns the string to be linked.
-  This function recieves substrings matched by parenthesis
-  in langdoc:link-regexp.
-* langdoc:make-link-fn
+  Function name which takes substrings matched in LINK-REGEXP
+  and returns the string to be linked.
+* MAKE-LINK-FN
 
-  Function name which returns the string and function symbol to make link.
-  This function recieves substrings matched by parenthesis
-  in langdoc:link-regexp and returns a string or a cons pair (SYM . FUN).
-  SYM is the string to be linked and FUN is the function to jump to SYM help string.
-  If it returns a string, langdoc:describe-symbol is used to jump to SYM.
-* langdoc:linked-prefix
+  Function name which takes same arguments as LINKED-STR-FN
+  and returns a string or a cons pair (SYM . FUN).
+  SYM is a link to other document and FUN is the function to jump to the help buffer for SYM.
+  If it returns a string, MODE-PREFIX:describe-symbol is used to jump to SYM.
+* PREFIX-STR, SUFFIX-STR
 
-  Prefix of the string returned from langdoc:linked-str-fn.
-* langdoc:linked-postfix
+  Prefix and suffix of the string returned from LINKED-STR-FN.
 
-  Postfix of the string returned from langdoc:linked-str-fn.
-
-If you need a concrete example, see the definition of [bf-mode:doc-fun in bf-mode.el](https://github.com/tom-tan/langdoc/blob/master/bf-mode.el#L58).
+If you need a concrete example, see [bf-mode.el](https://github.com/tom-tan/langdoc/blob/master/bf-mode.el#L58).
