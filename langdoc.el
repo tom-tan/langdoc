@@ -99,6 +99,7 @@
                        (add-to-list 'ret str t (lambda (a b) nil)))
     ret))
 
+;;;###autoload
 (defmacro langdoc:define-help-mode (mode-prefix description helpbuf-name
                                     pointed-sym-fn symbols make-document-fn
                                     &optional link-regexp linked-str-fn
