@@ -3,6 +3,7 @@
 ;; Copyright (C) 2013  by Tomoya Tanjo
 
 ;; Author: Tomoya Tanjo <ttanjo@gmail.com>
+;; URL: https://github.com/tom-tan/langdoc/
 ;; Keywords: convenience, eldoc
 
 ;; This program is free software; you can redistribute it and/or modify
