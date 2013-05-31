@@ -129,8 +129,8 @@ For instance, Let LINK-REGEXP be \"`\\\\(.+\\\\)'\", LINKED-STR-FN be
 (lambda (a b) (concat \"[\" b \"]\")), MAKE-LINK-FN be (lambda (a b) b),
 and PREFIX-STR and SUFFIX-STR  are \"`\" and \"'\" respectively.
 
-In this case, a string \"`linked-str'\" in help buffer becomes
-\"`[linked-str]'\" with a link to \"linked-str\"."
+In this case, a string \"`linked-str'\" becomes
+\"`[linked-str]'\" with a link to \"linked-str\" in help buffer ."
 
   (let ((mode (intern (concat (symbol-name mode-prefix) "-mode")))
         (setup (intern (concat (symbol-name mode-prefix) ":setup")))
