@@ -61,7 +61,7 @@
 ;; * PREFIX-STR, SUFFIX-STR
 ;;   Prefix and suffix of the string returned from LINKED-STR-FN.
 ;;
-;; If you need a concrete example, see the definition of `bf-mode:doc-fun' in bf-mode.el.
+;; If you need a concrete example, see brainfuck-mode.el (https://github.com/tom-tan/brainfuck-mode/).
 
 ;;; Code:
 

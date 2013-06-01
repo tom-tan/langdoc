@@ -49,4 +49,4 @@ Rest of the arguments is to make links in help buffers.
 
   Prefix and suffix of the string returned from LINKED-STR-FN.
 
-If you need a concrete example, see [bf-mode.el](https://github.com/tom-tan/langdoc/blob/master/bf-mode.el#L58).
+If you need a concrete example, see [brainfuck-mode.el](https://github.com/tom-tan/brainfuck-mode/blob/master/brainfuck-mode.el#L62).
