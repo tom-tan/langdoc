@@ -8,8 +8,8 @@ First three arguments are to define the help document mode.
 * `MODE-PREFIX`
 
   Symbol to make a help mode name and a function name.
-  `langdoc:define-help-mode` makes a major mode named `MODE-PREFIX-mode`
-  and a function named `MODE-PREFIX:describe-symbol`.
+  `langdoc-define-help-mode` makes a major mode named `MODE-PREFIX-mode`
+  and a function named `MODE-PREFIX-describe-symbol`.
 * `DESCRIPTION`
 
   Description for `MODE-PREFIX-mode`.
@@ -17,7 +17,7 @@ First three arguments are to define the help document mode.
 
   Buffer name for `MODE-PREFIX-mode`
 
-Next three arguments are to define `MODE-PREFIX:describe-symbol`.
+Next three arguments are to define `MODE-PREFIX-describe-symbol`.
 * `POINTED-SYM-FN`
 
   Function name which returns the string pointed by
@@ -34,7 +34,7 @@ Rest of the arguments is to make links in help buffers.
 * `LINK-REGEXP`
 
   Regexp string to make links.
-  If nil, `MODE-PREFIX:describe-symbol` does not make any links in help buffers.
+  If nil, `MODE-PREFIX-describe-symbol` does not make any links in help buffers.
 * `LINKED-STR-FN`
 
   Function name which takes substrings matched in `LINK-REGEXP`
@@ -44,7 +44,7 @@ Rest of the arguments is to make links in help buffers.
   Function name which takes same arguments as `LINKED-STR-FN`
   and returns a string or a cons pair `(SYM . FUN)`.
   `SYM` is a link to other document and FUN is the function to jump to the help buffer for `SYM`.
-  If it returns a string, `MODE-PREFIX:describe-symbol` is used to jump to `SYM`.
+  If it returns a string, `MODE-PREFIX-describe-symbol` is used to jump to `SYM`.
 * `PREFIX-STR`, `SUFFIX-STR`
 
   Prefix and suffix of the string returned from `LINKED-STR-FN`.
