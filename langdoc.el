@@ -22,21 +22,21 @@
 ;;; Commentary:
 
 ;; This library helps you to define help document mode for various languages.
-;; `langdoc:define-help-mode' makes a major mode for help document
+;; `langdoc-define-help-mode' makes a major mode for help document
 ;; and a function to show a description of a symbol. It takes at least six
 ;; arguments.
 ;;
 ;; First three arguments are to define the help document mode.
 ;; * MODE-PREFIX
 ;;   Symbol to make a help mode name and a function name.
-;;   `langdoc:define-help-mode' makes a major mode named MODE-PREFIX-mode
-;;   and a function named MODE-PREFIX:describe-symbol.
+;;   `langdoc-define-help-mode' makes a major mode named MODE-PREFIX-mode
+;;   and a function named MODE-PREFIX-describe-symbol.
 ;; * DESCRIPTION
 ;;   Description for MODE-PREFIX-mode.
 ;; * HELPBUF-NAME
 ;;   Buffer name for MODE-PREFIX-mode
 ;;
-;; Next three arguments are to define MODE-PREFIX:describe-symbol.
+;; Next three arguments are to define MODE-PREFIX-describe-symbol.
 ;; * POINTED-SYM-FN
 ;;   Function name which returns the string pointed by
 ;;   the cursor. This function takes no arguments.
@@ -49,7 +49,7 @@
 ;; Rest of the arguments is to make links in help buffers.
 ;; * LINK-REGEXP
 ;;   Regexp string to make links.
-;;   If nil, MODE-PREFIX:describe-symbol does not make any links in help buffers.
+;;   If nil, MODE-PREFIX-describe-symbol does not make any links in help buffers.
 ;; * LINKED-STR-FN
 ;;   Function name which takes substrings matched in LINK-REGEXP
 ;;   and returns the string to be linked.
@@ -57,7 +57,7 @@
 ;;   Function name which takes same arguments as LINKED-STR-FN
 ;;   and returns a string or a cons pair (SYM . FUN).
 ;;   SYM is a link to other document and FUN is the function to jump to the help buffer for SYM.
-;;   If it returns a string, MODE-PREFIX:describe-symbol is used to jump to SYM.
+;;   If it returns a string, MODE-PREFIX-describe-symbol is used to jump to SYM.
 ;; * PREFIX-STR, SUFFIX-STR
 ;;   Prefix and suffix of the string returned from LINKED-STR-FN.
 ;;
@@ -69,18 +69,18 @@
 (require 'view)
 (require 'cl-lib)
 
-(defun langdoc:call-fun (b)
+(defun langdoc-call-fun (b)
   (funcall (button-get b 'fun) (button-get b 'link)))
 
-(defun langdoc:insert-link (str to fun)
+(defun langdoc-insert-link (str to fun)
   (insert-text-button str
                       'follow-link t
                       'help-echo (concat "mouse-1, RET: describe this symbol")
                       'fun fun
-                      'action #'langdoc:call-fun
+                      'action #'langdoc-call-fun
                       'link to))
 
-(defmacro langdoc:if-let (lst then &rest else)
+(defmacro langdoc-if-let (lst then &rest else)
   (let ((value (car lst))
         (cnd   (cadr lst)))
     `(let ((,value ,cnd))
@@ -88,38 +88,38 @@
            ,then
            ,@else))))
 
-(defmacro langdoc:while-let (lst &rest body)
-  `(while (langdoc:if-let ,lst
+(defmacro langdoc-while-let (lst &rest body)
+  `(while (langdoc-if-let ,lst
                           (progn ,@body t))))
 
-(defun langdoc:matched-strings ()
+(defun langdoc-matched-strings ()
   "Return a list of strings parenthesized expression in the last regexp search."
   (let ((i 0) ret)
-    (langdoc:while-let (str (match-string-no-properties i))
+    (langdoc-while-let (str (match-string-no-properties i))
                        (cl-incf i)
                        (add-to-list 'ret str t (lambda (a b) nil)))
     ret))
 
 ;;;###autoload
-(defmacro langdoc:define-help-mode (mode-prefix description helpbuf-name
+(defmacro langdoc-define-help-mode (mode-prefix description helpbuf-name
                                     pointed-sym-fn symbols make-document-fn
                                     &optional link-regexp linked-str-fn
                                       make-link-fn prefix-str suffix-str)
   "Define help-mode and describe-symbol functions.
 It defines MODE-PREFIX-mode which is a major mode to show help strings, and
-defines MODE-PREFIX:describe-symbol to show help strings in MODE-PREFIX-mode.
-MODE-PREFIX:describe-symbol takes a string to show a full documentation in a help buffer.
+defines MODE-PREFIX-describe-symbol to show help strings in MODE-PREFIX-mode.
+MODE-PREFIX-describe-symbol takes a string to show a full documentation in a help buffer.
 DESCRIPTION is a description of MODE-PREFIX-mode. HELPBUF-NAME is a buffer name
 for MODE-PREFIX-mode.
 
 POINTED-SYM-FN is a function which recieves no arguments and returns a string
-pointed by the cursor. MODE-PREFIX:describe-symbol uses POINTED-SYM-FN when
+pointed by the cursor. MODE-PREFIX-describe-symbol uses POINTED-SYM-FN when
 it is interactively called. SYMBOLS is a list of strings to complete the
-argument of MODE-PREFIX:describe-symbol. MAKE-DOCUMENT-FN is a function
+argument of MODE-PREFIX-describe-symbol. MAKE-DOCUMENT-FN is a function
 which takes a string and returns the string which is a full document of the argument.
 
-LINK-REGEXP is a regexp to make links for MODE-PREFIX:describe-symbol.
-If NIL, MODE-PREFIX:describe-symbol does not make any links in help buffers.
+LINK-REGEXP is a regexp to make links for MODE-PREFIX-describe-symbol.
+If NIL, MODE-PREFIX-describe-symbol does not make any links in help buffers.
 LINKED-STR-FN is a function which takes substrings matched in LINK-REGEXP
 and returns a string to be linked. MAKE-LINK-FN is a function which takes
 same arguments as LINKED-STR-FN and returns a string which is a link to
@@ -134,8 +134,8 @@ In this case, a string \"`linked-str'\" becomes
 \"`[linked-str]'\" with a link to \"linked-str\" in help buffer ."
 
   (let ((mode (intern (concat (symbol-name mode-prefix) "-mode")))
-        (setup (intern (concat (symbol-name mode-prefix) ":setup")))
-        (desc-fn (intern (concat (symbol-name mode-prefix) ":describe-symbol"))))
+        (setup (intern (concat (symbol-name mode-prefix) "-setup")))
+        (desc-fn (intern (concat (symbol-name mode-prefix) "-describe-symbol"))))
     `(progn
 
        (define-generic-mode ,mode
@@ -148,13 +148,13 @@ In this case, a string \"`linked-str'\" becomes
                  (goto-char (point-min))
                  (while (re-search-forward ,link-regexp nil t)
                    (let ((beg (match-beginning 0))
-                         (args (langdoc:matched-strings)))
+                         (args (langdoc-matched-strings)))
                      (replace-match "" nil nil)
                      (goto-char beg)
                      (let ((str (apply ,linked-str-fn args))
                            (link (apply ,make-link-fn args)))
                        ,(when prefix-str `(insert ,prefix-str))
-                       (langdoc:insert-link str
+                       (langdoc-insert-link str
                                             (if (consp link) (car link) link)
                                             (if (consp link)
                                                 (cdr link) (quote ,desc-fn)))
