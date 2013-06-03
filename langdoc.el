@@ -158,7 +158,6 @@ In this case, a string \"`linked-str'\" becomes
                                             (if (consp link) (car link) link)
                                             (if (consp link)
                                                 (cdr link) (quote ,desc-fn)))
-                       (insert ,(or suffix-str ""))
                        ,(when suffix-str `(insert ,suffix-str)))))))
 
        (defun ,desc-fn (sym)
