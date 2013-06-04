@@ -4,6 +4,7 @@
 
 ;; Author: Tomoya Tanjo <ttanjo@gmail.com>
 ;; URL: https://github.com/tom-tan/langdoc/
+;; Package-Requires: ((cl-lib "0.2"))
 ;; Keywords: convenience, eldoc
 
 ;; This program is free software; you can redistribute it and/or modify
