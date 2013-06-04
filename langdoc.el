@@ -81,9 +81,9 @@
                       'link to))
 
 (defmacro langdoc-if-let (lst then &rest else)
-  (let ((value (car lst))
-        (cnd   (cadr lst)))
-    `(let ((,value ,cnd))
+  (lexical-let ((value (car lst))
+                (cnd   (cadr lst)))
+    `(lexical-let ((,value ,cnd))
        (if ,value
            ,then
            ,@else))))
@@ -133,9 +133,9 @@ and PREFIX-STR and SUFFIX-STR  are \"`\" and \"'\" respectively.
 In this case, a string \"`linked-str'\" becomes
 \"`[linked-str]'\" with a link to \"linked-str\" in help buffer ."
 
-  (let ((mode (intern (concat (symbol-name mode-prefix) "-mode")))
-        (setup (intern (concat (symbol-name mode-prefix) "-setup")))
-        (desc-fn (intern (concat (symbol-name mode-prefix) "-describe-symbol"))))
+  (lexical-let ((mode (intern (concat (symbol-name mode-prefix) "-mode")))
+                (setup (intern (concat (symbol-name mode-prefix) "-setup")))
+                (desc-fn (intern (concat (symbol-name mode-prefix) "-describe-symbol"))))
     `(progn
 
        (define-generic-mode ,mode
@@ -147,12 +147,12 @@ In this case, a string \"`linked-str'\" becomes
               `(defun ,setup ()
                  (goto-char (point-min))
                  (while (re-search-forward ,link-regexp nil t)
-                   (let ((beg (match-beginning 0))
-                         (args (langdoc-matched-strings)))
+                   (lexical-let ((beg (match-beginning 0))
+                                 (args (langdoc-matched-strings)))
                      (replace-match "" nil nil)
                      (goto-char beg)
-                     (let ((str (apply ,linked-str-fn args))
-                           (link (apply ,make-link-fn args)))
+                     (lexical-let ((str (apply ,linked-str-fn args))
+                                   (link (apply ,make-link-fn args)))
                        ,(when prefix-str `(insert ,prefix-str))
                        (langdoc-insert-link str
                                             (if (consp link) (car link) link)
@@ -172,7 +172,7 @@ In this case, a string \"`linked-str'\" becomes
             (list (if (equal val "") s val))))
          (if (null sym)
              (message "You didn't specify a symbol")
-             (let ((buf (get-buffer-create ,helpbuf-name)))
+             (lexical-let ((buf (get-buffer-create ,helpbuf-name)))
                (with-current-buffer buf
                  (setq buffer-read-only nil)
                  (let ((doc (funcall ,make-document-fn sym)))
