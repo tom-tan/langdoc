@@ -1,6 +1,6 @@
 ;;; langdoc.el --- Help to define help document mode for various languages
 
-;; Copyright (C) 2013  by Tomoya Tanjo
+;; Copyright (C) 2013, 2014  by Tomoya Tanjo
 
 ;; Author: Tomoya Tanjo <ttanjo@gmail.com>
 ;; URL: https://github.com/tom-tan/langdoc/
