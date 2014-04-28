@@ -1,7 +1,7 @@
 # langdoc.el
 
 This library helps you to define help document mode for various languages.
-In usual, you can install it by using `package-install` via [MELPA](http://melpa.milkbox.net/).
+You can install it by using `package-install` via [MELPA](http://melpa.milkbox.net/).
 
 `langdoc-define-help-mode` makes a major mode for help document
 and a function to show a description of a symbol. It takes at least six arguments.
