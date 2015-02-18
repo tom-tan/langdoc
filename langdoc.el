@@ -187,8 +187,9 @@ with a link to \"linked-str\" in help buffer ."
                    (insert doc)
                    (,mode)
                    (goto-char (point-min))
-                   (view-mode t)
-                   (display-buffer buf)))))))))
+                   (view-mode t)))
+               (unless (equal (buffer-name) ,helpbuf-name)
+                 (display-buffer buf))))))))
 
 (provide 'langdoc)
 ;;; langdoc.el ends here
